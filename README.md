@@ -101,28 +101,43 @@ Serious IT doesn't have to be *all* po-faced. :)
 
 ![yt](assets/youtubelink.jpg)
 
-
 [Watch the video](https://nujournalismincuba2018.wordpress.com/2018/07/21/video-the-magician-mechanics-of-cuba/)
 
+---
 
+# Issues / Support
+
+## IMPORTANT NOTE FOR PLATFORMIO USERS
+
+ArdvarkTCP is an *ArduinoIDE library*, and is 100% compatible with the ArduinoIDE and its build system. PlatformIO, sadly, ***is not***. If PlatformIO has problems with code that compiles and runs correctly under ArduinoIDE, then it is a ***PlatformIO problem***, not an issue with this - or any other - valid Arduino library, so please contact *them*, not *me*.
+
+For this reason, I will not accept any issues relating to build problems with PlatformIO, nor any pull requests nor other suggestions which involve any changes that render this library less than 100% ArduinoIDE compatible.
+
+## Non PlatformIO-related issues
+
+Your **first** point of contact should be one of the facebook groups below, if only to let me know you have raised an issue here. Obviously I will check the issues from time to time, but I do no have the time to check every day.
+
+If you want a rapid response, I am daily moderating those FB groups so you are likely to get a rapid response.
+
+## Before submitting an issue
+
+If you do not provide sufficient information for me to be able to replicate the problem, ***I CANNOT FIX IT***
+
+So, always provide: the MCU/board type, a good description of the problem, how / when / why it happens and how to recreate it, as well as the full source code, relevant Serial output messages and a DECODED stack trace in the event of a crash.
+
+## And finally...
+
+This is open-source, I do it in my own time, for free. If you want professional-level support because you are using *my* work to benefit your own commercial gain, then I'm happy to talk privately about a paid support contract. Or you can support me on [Patreon](https://www.patreon.com/esparto) 
 
 ---
 
-# Problems / Issues
+## Find me daily in these FB groups
 
-H4 / H4Plugins are designed to be easy to use, but the price of that is that the project is large and complex "under the hood". Its flexibility means that there are as many ways to do things as there are different programming styles. Because my resources are limited, I must insist that all reports provide at least enough information for me to replicate the problem. What you need to provide is described fully in [Raising an Issue](docs/issues.md)
+* [ESP8266 & ESP32 Microcontrollers](https://www.facebook.com/groups/2125820374390340/)
+* [ESP Developers](https://www.facebook.com/groups/ESP8266/)
+* [H4/Plugins support](https://www.facebook.com/groups/h4plugins)
 
-In terms of speed of response, you are *far* more likely to get a rapid answer if you "ping" me on one of the social media links below: I'm on those every day at some point; I may only visit GitHub once a week or so.
- # N.B. No problem report / issue will be considered or dealt with unless it complies FULLY with the requirements laid out in [Raising an Issue](docs/issues.md) . 
- 
- #### Help me to help YOU by provding all the information required in the relevant format
+I am always grateful for any $upport on [Patreon](https://www.patreon.com/esparto) :)
 
----
 
-(c) 2021 Phil Bowles h4plugins@gmail.com
-
-* [Facebook H4  Support / Discussion](https://www.facebook.com/groups/444344099599131/)
-* [Facebook General ESP8266 / ESP32](https://www.facebook.com/groups/2125820374390340/)
-* [Facebook ESP8266 Programming Questions](https://www.facebook.com/groups/esp8266questions/)
-* [Facebook ESP Developers (moderator)](https://www.facebook.com/groups/ESP8266/)
-* [Support me on Patreon](https://patreon.com/esparto)
+(C) 2021 Phil Bowles
