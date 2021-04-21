@@ -1,0 +1,40 @@
+#######################################
+# Syntax Coloring Map For H4Plugins
+#######################################
+
+#######################################
+# Library (	KEYWORD1)
+#######################################
+
+pmbtools	KEYWORD1
+
+#######################################
+# Datatypes 
+#######################################
+
+#######################################
+# Methods and Functions (	KEYWORD2)
+#######################################
+
+_HAL_feedWatchdog	KEYWORD2
+_HAL_maxHeapBlock	KEYWORD2
+_HAL_maxPayloadSize	KEYWORD2
+_HAL_uniqueName	KEYWORD2
+
+dumphex	KEYWORD2
+join	KEYWORD2
+lowercase	KEYWORD2
+ltrim	KEYWORD2
+replaceAll	KEYWORD2
+rtrim	KEYWORD2
+split	KEYWORD2
+stringFromInt	KEYWORD2
+stringIsAlpha	KEYWORD2
+stringIsNumeric	KEYWORD2
+trim	KEYWORD2
+uppercase	KEYWORD2
+urlencode	KEYWORD2
+
+#######################################
+# Constants (	LITERAL1)
+#######################################
