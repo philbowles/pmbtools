@@ -19,7 +19,7 @@ PMB Tools is at the heart of several other firmware packages that provide for si
 
 Firstly it "smooths out" differences in the hardware of ESP8266 / ESP32 that make writing cross-platform code a lot simpler, faster and easier to debug. This type of thing is usually known as a "Hardware Abstraction Layer" or "HAL"
 
-Secondly it provides a few utility functions of the kind that most programmers collect over the years. They usually include / re-write at the beginning of every project. I make no claims for any of the functions to be special or clever - they are just *my* quirky little way of doing things the way *I* like doing them. They have developed historically and also happen to be called by pretty much every piece of code I write, so - like 'em or not - you gotta have 'em! Finally, there are no doubt many different / better / faster ways of doing some of the tasks: If you think so, then you do them *your* way and spare me any lessons, please.
+Secondly it provides a few utility functions of the kind that most programmers collect over the years. They usually include / re-write them at the beginning of every project. I make no claims for any of the functions to be special or clever - they are just *my* quirky little way of doing things the way *I* like doing them. They have developed historically and also happen to be called by pretty much every piece of code I write, so - like 'em or not - you gotta have 'em! Finally, there are no doubt many different / better / faster ways of doing some of the tasks: If you think so, then you do them *your* way and spare me any lessons, please.
 
 Perhaps the quickest explanation for this library is to show the *other libraries* that depend on it and where it sits in the grand scheme of rapid development of asynchronous multitasking apps on ESP8266 / ESP32:
 
@@ -52,24 +52,43 @@ Perhaps the quickest explanation for this library is to show the *other librarie
 void                _HAL_feedWatchdog(); // You should NEVER call this - it's here for completenesss  only
 uint32_t            _HAL_maxHeapBlock(); // Maxium size of available memory block that can be allocated from heap
 size_t              _HAL_maxPayloadSize(); // calculated from 1/2 of the above after subtracting PMB_HEAP_SAFETY
-std::string         _HAL_uniqueName(const std::string& prefix); // prefix defaults to "ESP8266" or "ESP32", appends unique H/W chip ID
+string              _HAL_uniqueName(const string& prefix); // prefix defaults to "ESP8266" or "ESP32", appends unique H/W chip ID
 //
 //  General purpose / string manipulation
 //
-void                dumphex(const uint8_t* mem, size_t len); // pretty formatted hex dump len bytes at address mem
-std::string         join(const std::vector<std::string>& vs,const char* delim="\n"); // flattens/vector/into/string/delimited/by/whatever/u/want
-std::string         lowercase(std::string); // does what it says on the tin
-std::string         ltrim(const std::string& s, const char d=' '); // trims leftmost character(s)
-std::string         replaceAll(const std::string& s,const std::string& f,const std::string& r);
-std::string         rtrim(const std::string& s, const char d=' '); // trims rightmost character(s)
-std::vector<std::string>  split(const std::string& s, const char* delimiter="\n"); // decomposes "a/b/c..." into {"a","b","c",...}
-std::string         stringFromInt(int i,const char* fmt="%d"); // ESP8266 does not have C's itoa etc - this does kinda the same job
-bool                stringIsAlpha(const std::string& s); // true if string is entirely "visible ASCII"
-bool                stringIsNumeric(const std::string& s); // true if string will covert to a valid integer
-std::string         trim(const std::string& s, const char d=' '); // trims both ends, e.g. returs ltrim(rtrim(x))
-std::string         uppercase(std::string); // DOES WHAT IT SAYS ON THE TINE
-std::string         urlencode(const std::string &s); // pretty standard
+// NVP = Name / Value pair refers to a map<string,std:;string>
+//
+// json refers to "simple json" only: A single, flat hierarchy with no nested structures...for that you need ArduinoJson lib
+// these will handle very basic "flat" json without the excessive overhead of an extra complex lib, e.g.
+// {"name":"phil", "firmware":"H4"...}
+//
+void            dumphex(const uint8_t* mem, size_t len); // pretty formatted hex dump len bytes at address mem
+string          encodeUTF8(const string &);
+string          flattenMap(const map<string,string>& m,const string& fs,const string& rs,function<string(const string&)> f=[](const string& s){ return s; });
+uint32_t        hex2uint(const uint8_t* str); // converts string of x digits to decimal e.g. 02AC becomes 684
+string          join(const vector<string>& vs,const char* delim="\n"); // flattens/vector/into/string/delimited/by/whatever/u/want
+map<string,string> json2nvp(const string& s); /// takes "simple json" and creates name value / pairs inverse of nvp2json
+string          lowercase(string); // does what it says on the tin
+string          ltrim(const string& s, const char d=' '); // trims leftmost character(s)
+string          nvp2json(const map<string,string>& nvp);// flatens NVP into string representation of simple json inverse of json2nvp
+string          replaceAll(const string& s,const string& f,const string& r); // replace all occurrences of f in s with r
+string          rtrim(const string& s, const char d=' '); // trims rightmost character(s)
+vector<string>  split(const string& s, const char* delimiter="\n"); // decomposes "a/b/c..." into {"a","b","c",...}
+string          stringFromInt(int i,const char* fmt="%d"); // ESP8266 does not have C's itoa etc - this does kinda the same job
+bool            stringIsAlpha(const string& s); // true if string is entirely "visible ASCII"
+bool            stringIsNumeric(const string& s); // true if string will covert to a valid integer
+string          trim(const string& s, const char d=' '); // trims both ends, e.g. returs ltrim(rtrim(x))
+string          uppercase(string); // DOES WHAT IT SAYS ON THE TINE
+string          urlencode(const string &s); // pretty standard
 ```
+
+---
+
+# Why no example code?
+
+Two reasons:
+1) The functions are small, simple and mostly obvious
+2) There are dozens of example of usage littered throughout all of the other libraries and example code
 
 ---
 
