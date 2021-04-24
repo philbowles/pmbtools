@@ -33,11 +33,14 @@ SOFTWARE.
 
 #include<Arduino.h>
 
-#include<vector>
 #include<string>
+#include<vector>
+#include<map>
+
 using namespace std;
 
 void            _HAL_feedWatchdog();
+uint32_t        _HAL_freeHeap();
 uint32_t        _HAL_maxHeapBlock();
 size_t          _HAL_maxPayloadSize();
 #ifdef ARDUINO_ARCH_ESP32
@@ -46,10 +49,20 @@ string          _HAL_uniqueName(const string& prefix="ESP32");
 string          _HAL_uniqueName(const string& prefix="ESP8266");
 #endif
 
+#if PMB_DEBUG
+void            dumpvs(const vector<string>& vs);
+void            dumpnvp(const std::map<string,string>& ms);
+#endif
+
 void            dumphex(const uint8_t* mem, size_t len);
+string          encodeUTF8(const string &);
+string          flattenMap(const std::map<string,string>& m,const string& fs,const string& rs,function<string(const string&)> f=[](const string& s){ return s; });
+uint32_t        hex2uint(const uint8_t* str);
 string 		    join(const vector<string>& vs,const char* delim="\n");
+std::map<string,string> json2nvp(const string& s);
 string          lowercase(string);
 string          ltrim(const string& s, const char d=' ');
+string          nvp2json(const std::map<string,string>& nvp);
 string          replaceAll(const string& s,const string& f,const string& r);
 string          rtrim(const string& s, const char d=' ');
 vector<string>  split(const string& s, const char* delimiter="\n");

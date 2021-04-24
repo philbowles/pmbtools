@@ -31,6 +31,7 @@ SOFTWARE.
 #if defined(ARDUINO_ARCH_ESP32)
     #include "esp_task_wdt.h"
     void        _HAL_feedWatchdog(){ esp_task_wdt_reset(); }
+    uint32_t    _HAL_freeHeap(){ return ESP.getFreeHeap();   }
     uint32_t    _HAL_maxHeapBlock(){ return ESP.getMaxAllocHeap(); }
     string      _HAL_uniqueName(const string& prefix){
         static char buf[128]; // bogosity 2 the max
@@ -42,6 +43,7 @@ SOFTWARE.
         #include "user_interface.h"
     }
     void        _HAL_feedWatchdog(){ ESP.wdtFeed(); }
+    uint32_t    _HAL_freeHeap(){ return ESP.getFreeHeap(); }
     uint32_t    _HAL_maxHeapBlock(){ return ESP.getMaxFreeBlockSize(); }
     string      _HAL_uniqueName(const string& prefix){ return string(prefix).append(stringFromInt(ESP.getChipId(),"-%06X")); }
 #endif
@@ -50,6 +52,11 @@ uint32_t _HAL_maxPayloadSize(){ return (_HAL_maxHeapBlock() - PMB_HEAP_SAFETY) /
 //
 //
 //
+#if PMB_DEBUG
+void dumpvs(const vector<string>& vs){ for(auto const& v:vs) Serial.printf("%s\n",v.data()); }
+void dumpnvp(const std::map<string,string>& ms){ for(auto const& r:ms) Serial.printf("%s=%s\n",r.first.data(),r.second.data()); }
+#endif
+//
 void dumphex(const uint8_t* mem, size_t len) {
     if(mem && len){ // no-crash sanity
         auto W=16;
@@ -57,7 +64,7 @@ void dumphex(const uint8_t* mem, size_t len) {
         memcpy(&src,&mem,sizeof(uint8_t*));
         Serial.printf("Address: 0x%08X len: 0x%X (%d)", (ptrdiff_t)src, len, len);
         for(uint32_t i = 0; i < len; i++) {
-            if(i % W == 0) Serial.printf("\n[0x%08X] 0x%08X: ", (ptrdiff_t)src, i);
+            if(i % W == 0) Serial.printf("\n[0x%08X] 0x%08X %5d:  ", (ptrdiff_t)src, i,i);
             Serial.printf("%02X ", *src);
             src++;
             //
@@ -74,6 +81,23 @@ void dumphex(const uint8_t* mem, size_t len) {
     }
 }
 
+string flattenMap(const std::map<string,string>& m,const string& fs,const string& rs,function<string(const string&)> f){
+    string flat;
+    for(auto const& nvp:m) flat+=f(nvp.first)+fs+f(nvp.second)+rs;
+    flat.pop_back();
+    return flat;
+}
+
+uint32_t hex2uint(const uint8_t* str){
+    size_t res = 0;
+    uint8_t c;
+    while (isxdigit(c=*str++)) {
+        uint8_t v = (c & 0xF) + (c >> 6) | ((c >> 3) & 0x8);
+        res = (res << 4) | (size_t) v;
+    }
+    return res;
+}
+
 string join(const vector<string>& vs,const char* delim) {
 	string rv="";
 	if(vs.size()){
@@ -82,6 +106,50 @@ string join(const vector<string>& vs,const char* delim) {
 		for(int i=0;i<sd.size();i++) rv.pop_back();		
 	}
 	return rv;
+}
+
+//
+string encodeUTF8(const string& s){
+    string value(s);
+    size_t u=value.find("\\u");
+    while(u!=string::npos){
+        uint32_t cp=hex2uint((const uint8_t*) &value[u+2]);
+//        Serial.printf("value %s u=%d CODE POINT!!! %d 0x%06x\n",value.data(),u,cp,cp);
+        uint8_t b0=cp&0x3f;
+        uint8_t b1=(cp&0xfc0) >> 6;
+        uint8_t b2=(cp&0xf000) >> 12;
+//        Serial.printf("bytes %02x %02x %02x\n",b2,b1,b0);
+        vector<char> reps;
+        if(cp>0x7FF){
+            reps.push_back(b2 | 0xE0);
+            reps.push_back(b1 | 0x80);
+            reps.push_back(b0 | 0x80);
+        }
+        else {
+            if(cp>0x7f){
+                reps.push_back(b1 | 0xC0);
+                reps.push_back(b0 | 0x80);
+            } else reps.push_back(b0);
+        }
+//        string spesh(reps.begin(),reps.end());
+        string lhf=value.substr(0,u)+string(reps.begin(),reps.end())+value.substr(u+6,string::npos);
+        value=lhf;
+        u=value.find("\\u",u+6);
+    }
+    return value; 
+}
+
+std::map<string,string> json2nvp(const string& s){
+    std::map<std::string,std::string> J;
+    string json=ltrim(rtrim(ltrim(rtrim(s,']'),'['),'}'),'{');
+    size_t i=json.find("\":");
+    do{
+        size_t h=1+json.rfind("\"",i-2);
+        size_t j=json.find(",\"",i);
+        J[json.substr(h,i-h)]=encodeUTF8(replaceAll(trim(json.substr(i+2,j-(i+2)),'"'),"\\/","/"));
+        i=json.find("\":",i+2);
+    } while(i!=std::string::npos);
+    return J;
 }
 
 string lowercase(string s){
@@ -94,6 +162,13 @@ string ltrim(const string& s, const char d){
 	string rv(s);
 	while(rv.size() && (rv.front()==d)) rv=string(++rv.begin(),rv.end());
 	return rv;	
+}
+
+string nvp2json(const std::map<string,string>& nvp){
+  string j="{";
+  for(auto const& m:nvp) j+="\""+m.first+"\":\""+m.second+"\",";
+  j.pop_back();
+  return j.append("}");
 }
 
 string replaceAll(const string& s,const string& f,const string& r){
