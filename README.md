@@ -56,11 +56,20 @@ string              _HAL_uniqueName(const string& prefix); // prefix defaults to
 //
 //  General purpose / string manipulation
 //
-// NVP = Name / Value pair refers to a map<string,std:;string>
+// NVP = Name / Value pair refers to a std::map<std::string,std::string>
 //
-// json refers to "simple json" only: A single, flat hierarchy with no nested structures...for that you need ArduinoJson lib
-// these will handle very basic "flat" json without the excessive overhead of an extra complex lib, e.g.
-// {"name":"phil", "firmware":"H4"...}
+// json refers to "simple json" only: A single, flat hierarchy, anything more complex needs e.g. ArduinoJson lib
+//
+// While the functions here dela with valid json, they deal only with an extremely limited and specific subset.
+//  This can save a LOT of space by avoiding external JSON libraries (e.g. ArduinoJson) where you have control over the input
+//  (e.g. from your own internal webserver(s)) and cane ensure:
+//  * No arrays
+//  * no nesting
+//  * no extraneous whitespace
+//  * no unquoted values (everything is going to/from std::map<std::string,std::string>
+//
+// Example:
+//  {"name":"phil","firmware":"H4","numeric","666"}
 //
 void            dumphex(const uint8_t* mem, size_t len); // pretty formatted hex dump len bytes at address mem
 string          encodeUTF8(const string &);

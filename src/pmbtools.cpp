@@ -141,15 +141,20 @@ string encodeUTF8(const string& s){
 
 std::map<string,string> json2nvp(const string& s){
     std::map<std::string,std::string> J;
-    string json=ltrim(rtrim(ltrim(rtrim(s,']'),'['),'}'),'{');
-    size_t i=json.find("\":");
-    do{
-        size_t h=1+json.rfind("\"",i-2);
-        size_t j=json.find(",\"",i);
-        J[json.substr(h,i-h)]=encodeUTF8(replaceAll(trim(json.substr(i+2,j-(i+2)),'"'),"\\/","/"));
-        i=json.find("\":",i+2);
-    } while(i!=std::string::npos);
-    return J;
+    if(s.size() > 7){
+        string json=ltrim(rtrim(ltrim(rtrim(s,']'),'['),'}'),'{');
+        size_t i=json.find("\":");
+        if(i){
+            do{
+                size_t h=1+json.rfind("\"",i-2);
+                size_t j=json.find(",\"",i);
+                J[json.substr(h,i-h)]=encodeUTF8(replaceAll(trim(json.substr(i+2,j-(i+2)),'"'),"\\/","/"));
+                i=json.find("\":",i+2);
+            } while(i!=std::string::npos);
+            return J;
+        } //else Serial.printf("can't parse json - no components\n");
+    } //else Serial.printf("can't parse json - too short \n");
+    return {};
 }
 
 string lowercase(string s){
