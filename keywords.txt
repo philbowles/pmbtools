@@ -22,9 +22,14 @@ _HAL_maxPayloadSize	KEYWORD2
 _HAL_uniqueName	KEYWORD2
 
 dumphex	KEYWORD2
+encodeUTF8	KEYWORD2
+flattenMap	KEYWORD2
+hex2uint	KEYWORD2
 join	KEYWORD2
+json2nvp	KEYWORD2
 lowercase	KEYWORD2
 ltrim	KEYWORD2
+nvp2json	KEYWORD2
 replaceAll	KEYWORD2
 rtrim	KEYWORD2
 split	KEYWORD2
