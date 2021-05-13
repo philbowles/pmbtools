@@ -36,7 +36,11 @@ SOFTWARE.
 #include<string>
 #include<vector>
 #include<map>
+#include<unordered_map>
 #include<functional>
+
+#define RECORD_SEPARATOR "|"
+#define UNIT_SEPARATOR "~"
 
 using namespace std;
 
@@ -45,9 +49,9 @@ uint32_t        _HAL_freeHeap();
 uint32_t        _HAL_maxHeapBlock();
 size_t          _HAL_maxPayloadSize();
 #ifdef ARDUINO_ARCH_ESP32
-string          _HAL_uniqueName(const string& prefix="ESP32");
+string          _HAL_uniqueName(const string& prefix);
 #else
-string          _HAL_uniqueName(const string& prefix="ESP8266");
+string          _HAL_uniqueName(const string& prefix);
 #endif
 
 #if PMB_DEBUG
@@ -57,7 +61,6 @@ void            dumpnvp(const std::map<string,string>& ms);
 
 void            dumphex(const uint8_t* mem, size_t len);
 string          encodeUTF8(const string &);
-string          flattenMap(const std::map<string,string>& m,const string& fs,const string& rs,function<string(const string&)> f=[](const string& s){ return s; });
 uint32_t        hex2uint(const uint8_t* str);
 string 		    join(const vector<string>& vs,const char* delim="\n");
 std::map<string,string> json2nvp(const string& s);
@@ -73,3 +76,11 @@ bool		    stringIsNumeric(const string& s);
 string          trim(const string& s, const char d=' ');
 string          uppercase(string);
 string          urlencode(const string &s);
+//
+template<typename T>
+string flattenMap(const T& m,const string& fs=UNIT_SEPARATOR,const string& rs=RECORD_SEPARATOR,function<string(const string&)> f=[](const string& s){ return s; }){
+    string flat;
+    for(auto const& nvp:m) flat+=f(nvp.first)+fs+f(nvp.second)+rs;
+    flat.pop_back();
+    return flat;
+}

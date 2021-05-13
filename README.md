@@ -4,6 +4,11 @@
 
 ---
 
+## Version 0.3.0
+
+Minor API changes x2: Read [release notes](docs/rn030.md)
+---
+
 # Contents
 
 * [What does it do?](#what-does-it-do)
@@ -74,6 +79,7 @@ string              _HAL_uniqueName(const string& prefix); // prefix defaults to
 void            dumphex(const uint8_t* mem, size_t len); // pretty formatted hex dump len bytes at address mem
 string          encodeUTF8(const string &);
 string          flattenMap(const map<string,string>& m,const string& fs,const string& rs,function<string(const string&)> f=[](const string& s){ return s; });
+string          flattenMap(const unordered_map<string,string>& m,const string& fs,const string& rs,function<string(const string&)> f=[](const string& s){ return s; });
 uint32_t        hex2uint(const uint8_t* str); // converts string of x digits to decimal e.g. 02AC becomes 684
 string          join(const vector<string>& vs,const char* delim="\n"); // flattens/vector/into/string/delimited/by/whatever/u/want
 map<string,string> json2nvp(const string& s); /// takes "simple json" and creates name value / pairs inverse of nvp2json

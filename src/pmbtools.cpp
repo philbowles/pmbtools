@@ -33,11 +33,7 @@ SOFTWARE.
     void        _HAL_feedWatchdog(){ esp_task_wdt_reset(); }
     uint32_t    _HAL_freeHeap(){ return ESP.getFreeHeap();   }
     uint32_t    _HAL_maxHeapBlock(){ return ESP.getMaxAllocHeap(); }
-    string      _HAL_uniqueName(const string& prefix){
-        static char buf[128]; // bogosity 2 the max
-        sprintf(buf, "%s-%12llX", prefix.data(),ESP.getEfuseMac());
-        return string(buf);
-    }
+    string      _HAL_uniqueName(const string& prefix){ return string(prefix).append(stringFromInt(ESP.getEfuseMac() & 0xFFFFFF,"%06X")); }
 #else
     extern "C" {
         #include "user_interface.h"
@@ -45,7 +41,7 @@ SOFTWARE.
     void        _HAL_feedWatchdog(){ ESP.wdtFeed(); }
     uint32_t    _HAL_freeHeap(){ return ESP.getFreeHeap(); }
     uint32_t    _HAL_maxHeapBlock(){ return ESP.getMaxFreeBlockSize(); }
-    string      _HAL_uniqueName(const string& prefix){ return string(prefix).append(stringFromInt(ESP.getChipId(),"-%06X")); }
+    string      _HAL_uniqueName(const string& prefix){ return string(prefix).append(stringFromInt(ESP.getChipId(),"%06X")); }
 #endif
 
 uint32_t _HAL_maxPayloadSize(){ return (_HAL_maxHeapBlock() - PMB_HEAP_SAFETY) / 2; }
@@ -79,13 +75,6 @@ void dumphex(const uint8_t* mem, size_t len) {
         }
         Serial.println();
     }
-}
-
-string flattenMap(const std::map<string,string>& m,const string& fs,const string& rs,function<string(const string&)> f){
-    string flat;
-    for(auto const& nvp:m) flat+=f(nvp.first)+fs+f(nvp.second)+rs;
-    flat.pop_back();
-    return flat;
 }
 
 uint32_t hex2uint(const uint8_t* str){
