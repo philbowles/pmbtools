@@ -33,7 +33,7 @@ SOFTWARE.
     void        _HAL_feedWatchdog(){ esp_task_wdt_reset(); }
     uint32_t    _HAL_freeHeap(){ return ESP.getFreeHeap();   }
     uint32_t    _HAL_maxHeapBlock(){ return ESP.getMaxAllocHeap(); }
-    string      _HAL_uniqueName(const string& prefix){ return string(prefix).append(stringFromInt(ESP.getEfuseMac() & 0xFFFFFF,"%06X")); }
+    std::string      _HAL_uniqueName(const std::string& prefix){ return std::string(prefix).append(stringFromInt(ESP.getEfuseMac() & 0xFFFFFF,"%06X")); }
 #else
     extern "C" {
         #include "user_interface.h"
@@ -41,7 +41,7 @@ SOFTWARE.
     void        _HAL_feedWatchdog(){ ESP.wdtFeed(); }
     uint32_t    _HAL_freeHeap(){ return ESP.getFreeHeap(); }
     uint32_t    _HAL_maxHeapBlock(){ return ESP.getMaxFreeBlockSize(); }
-    string      _HAL_uniqueName(const string& prefix){ return string(prefix).append(stringFromInt(ESP.getChipId(),"%06X")); }
+    std::string      _HAL_uniqueName(const std::string& prefix){ return std::string(prefix).append(stringFromInt(ESP.getChipId(),"%06X")); }
 #endif
 
 uint32_t _HAL_maxPayloadSize(){ return (_HAL_maxHeapBlock() - PMB_HEAP_SAFETY) / 2; }
@@ -49,8 +49,8 @@ uint32_t _HAL_maxPayloadSize(){ return (_HAL_maxHeapBlock() - PMB_HEAP_SAFETY) /
 //
 //
 #if PMB_DEBUG
-void dumpvs(const vector<string>& vs){ for(auto const& v:vs) Serial.printf("%s\n",v.data()); }
-void dumpnvp(const std::map<string,string>& ms){ for(auto const& r:ms) Serial.printf("%s=%s\n",r.first.data(),r.second.data()); }
+void dumpvs(const std::vector<std::string>& vs){ for(auto const& v:vs) Serial.printf("%s\n",v.data()); }
+void dumpnvp(const std::map<std::string,std::string>& ms){ for(auto const& r:ms) Serial.printf("%s=%s\n",r.first.data(),r.second.data()); }
 #endif
 //
 void dumphex(const uint8_t* mem, size_t len) {
@@ -87,10 +87,10 @@ uint32_t hex2uint(const uint8_t* str){
     return res;
 }
 
-string join(const vector<string>& vs,const char* delim) {
-	string rv="";
+std::string join(const std::vector<std::string>& vs,const char* delim) {
+	std::string rv="";
 	if(vs.size()){
-		string sd(delim);
+		std::string sd(delim);
 		for(auto const& v:vs) rv+=v+sd;
 		for(int i=0;i<sd.size();i++) rv.pop_back();		
 	}
@@ -98,17 +98,17 @@ string join(const vector<string>& vs,const char* delim) {
 }
 
 //
-string encodeUTF8(const string& s){
-    string value(s);
+std::string encodeUTF8(const std::string& s){
+    std::string value(s);
     size_t u=value.find("\\u");
-    while(u!=string::npos){
+    while(u!=std::string::npos){
         uint32_t cp=hex2uint((const uint8_t*) &value[u+2]);
 //        Serial.printf("value %s u=%d CODE POINT!!! %d 0x%06x\n",value.data(),u,cp,cp);
         uint8_t b0=cp&0x3f;
         uint8_t b1=(cp&0xfc0) >> 6;
         uint8_t b2=(cp&0xf000) >> 12;
 //        Serial.printf("bytes %02x %02x %02x\n",b2,b1,b0);
-        vector<char> reps;
+        std::vector<char> reps;
         if(cp>0x7FF){
             reps.push_back(b2 | 0xE0);
             reps.push_back(b1 | 0x80);
@@ -120,18 +120,18 @@ string encodeUTF8(const string& s){
                 reps.push_back(b0 | 0x80);
             } else reps.push_back(b0);
         }
-//        string spesh(reps.begin(),reps.end());
-        string lhf=value.substr(0,u)+string(reps.begin(),reps.end())+value.substr(u+6,string::npos);
+//        std::string spesh(reps.begin(),reps.end());
+        std::string lhf=value.substr(0,u)+std::string(reps.begin(),reps.end())+value.substr(u+6,std::string::npos);
         value=lhf;
         u=value.find("\\u",u+6);
     }
     return value; 
 }
 
-std::map<string,string> json2nvp(const string& s){
+std::map<std::string,std::string> json2nvp(const std::string& s){
     std::map<std::string,std::string> J;
     if(s.size() > 7){
-        string json=ltrim(rtrim(ltrim(rtrim(s,']'),'['),'}'),'{');
+        std::string json=ltrim(rtrim(ltrim(rtrim(s,']'),'['),'}'),'{');
         size_t i=json.find("\":");
         if(i){
             do{
@@ -146,82 +146,82 @@ std::map<string,string> json2nvp(const string& s){
     return {};
 }
 
-string lowercase(string s){
-   string ucase(s);
+std::string lowercase(std::string s){
+   std::string ucase(s);
    transform(ucase.begin(), ucase.end(),ucase.begin(), [](unsigned char c){ return std::tolower(c); } );
    return ucase;
 }
 
-string ltrim(const string& s, const char d){
-	string rv(s);
-	while(rv.size() && (rv.front()==d)) rv=string(++rv.begin(),rv.end());
+std::string ltrim(const std::string& s, const char d){
+	std::string rv(s);
+	while(rv.size() && (rv.front()==d)) rv=std::string(++rv.begin(),rv.end());
 	return rv;	
 }
 
-string nvp2json(const std::map<string,string>& nvp){
-  string j="{";
+std::string nvp2json(const std::map<std::string,std::string>& nvp){
+  std::string j="{";
   for(auto const& m:nvp) j+="\""+m.first+"\":\""+m.second+"\",";
   j.pop_back();
   return j.append("}");
 }
 
-string replaceAll(const string& s,const string& f,const string& r){
-  string tmp=s;
+std::string replaceAll(const std::string& s,const std::string& f,const std::string& r){
+  std::string tmp=s;
   size_t pos = tmp.find(f);
 
-  while( pos != string::npos){
+  while( pos != std::string::npos){
     tmp.replace(pos, f.size(), r);
     pos =tmp.find(f, pos + r.size());
   }
 return tmp;
 }
 
-string rtrim(const string& s, const char d){
-	string rv(s);
+std::string rtrim(const std::string& s, const char d){
+	std::string rv(s);
 	while(rv.size() && (rv.back()==d)) rv.pop_back();
 	return rv;	
 }
 
-vector<string> split(const string& s, const char* delimiter){
-	vector<string> vt;
-	string delim(delimiter);
+std::vector<std::string> split(const std::string& s, const char* delimiter){
+	std::vector<std::string> vt;
+	std::string delim(delimiter);
 	auto len=delim.size();
 	auto start = 0U;
 	auto end = s.find(delim);
-	while (end != string::npos){
+	while (end != std::string::npos){
 		vt.push_back(s.substr(start, end - start));
 		start = end + len;
 		end = s.find(delim, start);
 	}
-	string tec=s.substr(start, end);
+	std::string tec=s.substr(start, end);
 	if(tec.size()) vt.push_back(tec);		
 	return vt;
 }
 
-string stringFromInt(int i,const char* fmt){
+std::string stringFromInt(int i,const char* fmt){
 	char buf[16];
 	sprintf(buf,fmt,i);
-	return string(buf);
+	return std::string(buf);
 }
 
-bool stringIsAlpha(const string& s){ 
+bool stringIsAlpha(const std::string& s){ 
     return !(std::find_if(s.begin(), s.end(),[](char c) { return !std::isalpha(c); }) != s.end());
 }
 
-bool stringIsNumeric(const string& s){ 
-    string abs=(s[0]=='-') ? string(++s.begin(),s.end()):s; // allow leading minus
+bool stringIsNumeric(const std::string& s){ 
+    std::string abs=(s[0]=='-') ? std::string(++s.begin(),s.end()):s; // allow leading minus
     return all_of(abs.begin(), abs.end(), ::isdigit);
 }
 
-string trim(const string& s, const char d){ return(ltrim(rtrim(s,d),d)); }
+std::string trim(const std::string& s, const char d){ return(ltrim(rtrim(s,d),d)); }
 
-string uppercase(string s){
-   string ucase(s);
+std::string uppercase(std::string s){
+   std::string ucase(s);
    transform(ucase.begin(), ucase.end(),ucase.begin(), [](unsigned char c){ return std::toupper(c); } );
    return ucase;
 }
 
-string urlencode(const std::string &s){
+std::string urlencode(const std::string &s){
     static const char lookup[]= "0123456789abcdef";
     std::string e;
     for(int i=0, ix=s.length(); i<ix; i++)

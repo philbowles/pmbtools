@@ -4,9 +4,10 @@
 
 ---
 
-## Version 0.3.0
+## Version 0.4.1
 
-Minor API changes x2: Read [release notes](docs/rn030.md)
+[Release Notes](docs/rn030.md)
+
 ---
 
 # Contents

@@ -1,3 +1,3 @@
-#define PMBTOOLS_VERSION "0.3.0"
-#define PMB_DEBUG 1
+#define PMBTOOLS_VERSION "0.4.1"
+#define PMB_DEBUG 0
 #define PMB_HEAP_SAFETY 4096
