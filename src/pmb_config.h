@@ -1,4 +1,4 @@
-#define PMBTOOLS_VERSION "0.4.1"
+#define PMBTOOLS_VERSION "0.5.0"
 
 #define PMB_PWM_DEFAULT 48000
 #define PMB_DEBUG           0

@@ -4,7 +4,7 @@
 
 ---
 
-## Version 0.4.1
+## Version 0.5.0
 
 [Release Notes](docs/rn030.md)
 
@@ -63,10 +63,15 @@ SEE [Installation](#installation)
 //
 //  HAL
 //
-void                _HAL_feedWatchdog(); // You should NEVER call this - it's here for completenesss  only
-uint32_t            _HAL_maxHeapBlock(); // Maxium size of available memory block that can be allocated from heap
-size_t              _HAL_maxPayloadSize(); // calculated from 1/2 of the above after subtracting PMB_HEAP_SAFETY
-string              _HAL_uniqueName(const string& prefix); // prefix defaults to "ESP8266" or "ESP32", appends unique H/W chip ID
+void        _HAL_analogFrequency(uint8_t pin,size_t f=PMB_PWM_DEFAULT);
+void        _HAL_analogWrite(uint8_t pin, uint32_t value);
+void        _HAL_attachAnalogPin(uint8_t pin);
+void        _HAL_feedWatchdog(); // You should NEVER call this - it's here for completenesss  only
+bool        _HAL_isAnalogInput(uint8_t p);
+bool        _HAL_isAnalogOutput(uint8_t p);
+uint32_t    _HAL_maxHeapBlock(); // Maxium size of available memory block that can be allocated from heap
+size_t      _HAL_maxPayloadSize(); // calculated from 1/2 of the above after subtracting PMB_HEAP_SAFETY
+string      _HAL_uniqueName(const string& prefix); // prefix defaults to "ESP8266" or "ESP32", appends unique H/W chip ID
 //
 //  General purpose / string manipulation
 //
