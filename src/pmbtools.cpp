@@ -30,18 +30,57 @@ SOFTWARE.
 
 #if defined(ARDUINO_ARCH_ESP32)
     #include "esp_task_wdt.h"
+    uint32_t         h4channel=0;
+    std::unordered_map<uint8_t , uint8_t> h4channelmap; // pin, channel
+
+    void        _HAL_attachAnalogPin(uint8_t pin){ // fix, lmit to 16!!!
+        #if PMB_DEBUG
+            Serial.printf("HAAP P=%u attached to CH=%u\n",pin,h4channel);
+        #endif
+        h4channelmap[pin]=h4channel;
+        _HAL_analogFrequency(pin,PMB_PWM_DEFAULT); // set default f = PWM=0 =OFF
+        ledcAttachPin(pin, h4channel);
+        h4channel+=2;
+    }
+    void        _HAL_analogFrequency(uint8_t pin,size_t f){
+        #if PMB_DEBUG
+            Serial.printf("HAF P=%u F=%u CH=%u\n",pin,f,h4channelmap[pin]);
+        #endif
+        ledcSetup(h4channelmap[pin], f, 10); // log2(PWMRANGE)
+    }
+    
+    void        _HAL_analogWrite(uint8_t pin,uint32_t f){
+        #if PMB_DEBUG
+            Serial.printf("HAW P=%u V=%u\n",pin,f);
+        #endif
+        ledcWrite(h4channelmap[pin], f);
+    }
     void        _HAL_feedWatchdog(){ esp_task_wdt_reset(); }
     uint32_t    _HAL_freeHeap(){ return ESP.getFreeHeap();   }
+    bool        _HAL_isAnalogInput(uint8_t p){
+        std::vector<uint8_t> adc={5,8,10,11,12,13,14,15,16,17,18,20,21,22,23,24};
+        return std::find(adc.begin(),adc.end(),p)!=adc.end();
+    }
+    bool        _HAL_isAnalogOutput(uint8_t p){ return h4channelmap.count(p); }
     uint32_t    _HAL_maxHeapBlock(){ return ESP.getMaxAllocHeap(); }
-    std::string      _HAL_uniqueName(const std::string& prefix){ return std::string(prefix).append(stringFromInt(ESP.getEfuseMac() & 0xFFFFFF,"%06X")); }
+    std::string _HAL_uniqueName(const std::string& prefix){ return std::string(prefix).append(stringFromInt(ESP.getEfuseMac() & 0xFFFFFF,"%06X")); }
+
 #else
     extern "C" {
         #include "user_interface.h"
     }
+    void        _HAL_attachAnalogPin(uint8_t pin){}
+    void        _HAL_analogFrequency(uint8_t pin,size_t f){ analogWriteFreq(f); }
+    void        _HAL_analogWrite(uint8_t pin, uint32_t value){ analogWrite(pin,value); }
     void        _HAL_feedWatchdog(){ ESP.wdtFeed(); }
     uint32_t    _HAL_freeHeap(){ return ESP.getFreeHeap(); }
+    bool        _HAL_isAnalogInput(uint8_t p){ return p==A0; }
+    bool        _HAL_isAnalogOutput(uint8_t p){         
+        std::vector<uint8_t> adc={5,6,16,19};
+        return std::find(adc.begin(),adc.end(),p)!=adc.end();
+    }
     uint32_t    _HAL_maxHeapBlock(){ return ESP.getMaxFreeBlockSize(); }
-    std::string      _HAL_uniqueName(const std::string& prefix){ return std::string(prefix).append(stringFromInt(ESP.getChipId(),"%06X")); }
+    std::string _HAL_uniqueName(const std::string& prefix){ return std::string(prefix).append(stringFromInt(ESP.getChipId(),"%06X")); }
 #endif
 
 uint32_t _HAL_maxPayloadSize(){ return (_HAL_maxHeapBlock() - PMB_HEAP_SAFETY) / 2; }
